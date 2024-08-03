@@ -16,6 +16,11 @@ the step activity over the specified duration.
 - Runs entirely in the browser - no server required
 - Built with vanilla JavaScript
 - Uses the JSZip library to process ZIP files
+- Replaces a [bookmarklet] that could previously do this; the bookmarklet is not
+  functional since Fitbit removed the [web dashboard app].
+
+[bookmarklet]: https://punchagan.github.io/bookmarklets/#fitbit-csv
+[web dashboard app]: https://support.google.com/fitbit?p=dashboard-app
 
 ## Privacy
 
