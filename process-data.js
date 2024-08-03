@@ -42,7 +42,7 @@ const processData = async () => {
     return entryDate >= startDate && entryDate <= endDate;
   });
   const groupedData = groupDataBy5Minutes(filteredData, startDate, endDate);
-  displayResults(groupedData);
+  displayResults(groupedData, startDate, endDate);
   enableDownloadButton(groupedData, startDate, endDate);
 }
 
@@ -78,9 +78,9 @@ const displayProcessing = () => {
   document.getElementById('downloadBtn').disabled = true;
 }
 
-const displayResults = (data) => {
+const displayResults = (data, startDate, endDate) => {
   const resultDiv = document.getElementById('result');
-  resultDiv.innerHTML = '<h2>Results:</h2>';
+  resultDiv.innerHTML = '';
   // Display the data in a table
   const table = document.createElement('table');
   // Date, Time, Steps
@@ -103,7 +103,14 @@ const displayResults = (data) => {
     const stepsCell = row.insertCell();
     stepsCell.textContent = value;
   }
-  resultDiv.appendChild(table);
+
+  const details = document.createElement('details');
+  const summary = document.createElement('summary');
+  const steps = `Processed data from ${formatDate(startDate)} to ${formatDate(endDate)}`;
+  summary.textContent = steps;
+  resultDiv.appendChild(details);
+  details.appendChild(summary);
+  details.appendChild(table);
 }
 
 const enableDownloadButton = (data, startDate, endDate) => {
