@@ -1,3 +1,11 @@
+const formatDate = (date) => {
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replaceAll("/", "-");
+}
+
+const formatTime = (date) => {
+  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+};
+
 const processData = async () => {
   displayProcessing();
   const zipFile = document.getElementById('zipFile').files[0];
@@ -35,6 +43,7 @@ const processData = async () => {
   });
   const groupedData = groupDataBy5Minutes(filteredData, startDate, endDate);
   displayResults(groupedData);
+  enableDownloadButton(groupedData, startDate, endDate);
 }
 
 const groupDataBy5Minutes = (data, startDate, endDate) => {
@@ -66,6 +75,7 @@ const groupDataBy5Minutes = (data, startDate, endDate) => {
 const displayProcessing = () => {
   const resultDiv = document.getElementById('result');
   resultDiv.innerHTML = '<h4>Processing...</h4>';
+  document.getElementById('downloadBtn').disabled = true;
 }
 
 const displayResults = (data) => {
@@ -87,13 +97,41 @@ const displayResults = (data) => {
     const dateTimeCell = row.insertCell();
     const date = new Date(key);
     // Write date in the format dd-mmm-yyyy hh:mm
-    const d = date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replaceAll("/", "-");
-    const t = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const d = formatDate(date);
+    const t = formatTime(date);
     dateTimeCell.textContent = `${d} ${t}`;
     const stepsCell = row.insertCell();
     stepsCell.textContent = value;
   }
   resultDiv.appendChild(table);
+}
+
+const enableDownloadButton = (data, startDate, endDate) => {
+  const downloadBtn = document.getElementById('downloadBtn');
+  downloadBtn.disabled = false;
+  downloadBtn.onclick = () => downloadCSV(data, startDate, endDate);
+}
+
+const downloadCSV = (data, startDate, endDate) => {
+  let csvContent = "DateTime,Steps\n";
+  for (const [key, value] of Object.entries(data)) {
+    const date = new Date(key);
+    const d = formatDate(date);
+    const t = formatTime(date);
+    csvContent += `${d} ${t},${value}\n`;
+  }
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    const filename = `fitbit-${formatDate(startDate)}--${formatDate(endDate)}.csv`
+    link.setAttribute("download", filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
