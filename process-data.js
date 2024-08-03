@@ -33,24 +33,33 @@ const processData = async () => {
     const entryDate = new Date(entry.dateTime);
     return entryDate >= startDate && entryDate <= endDate;
   });
-
-  const groupedData = groupDataBy5Minutes(filteredData);
+  const groupedData = groupDataBy5Minutes(filteredData, startDate, endDate);
   displayResults(groupedData);
 }
 
-const groupDataBy5Minutes = (data) => {
+const groupDataBy5Minutes = (data, startDate, endDate) => {
   const grouped = {};
+  const current = new Date(startDate);
+  current.setHours(0, 0, 0, 0);
+
+  while (current <= endDate) {
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 5) {
+        const key = `${current.toDateString()} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        grouped[key] = 0;
+      }
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
   data.forEach(entry => {
     const date = new Date(entry.dateTime);
     const minutes = date.getMinutes();
     const roundedMinutes = Math.floor(minutes / 5) * 5;
     const key = `${date.toDateString()} ${date.getHours().toString().padStart(2, '0')}:${roundedMinutes.toString().padStart(2, '0')}`;
-
-    if (!grouped[key]) {
-      grouped[key] = 0;
-    }
     grouped[key] += parseInt(entry.value);
   });
+
   return grouped;
 }
 
