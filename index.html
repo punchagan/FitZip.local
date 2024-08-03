@@ -11,19 +11,21 @@
     <body>
         <h1>FitZip.local</h1>
         <p>Your Local Fitbit Data Analyzer</p>
-        <div class="container">
-        </div>
+        <p class="notice">
+            <i>
+                FitZip.local processes all data locally in your browser. No data is
+                sent to any server or third party.
+            </i>
+        </p>
         <form id="dataForm">
             <p>
                 <label>Fitbit Export zip file</label>
                 <input type="file" id="zipFile" accept=".zip">
             </p>
-
             <p>
                 <label for="startDate">Start Date</label>
                 <input type="date" id="startDate">
             </p>
-
             <p>
                 <label for="endDate">End Date</label>
                 <input type="date" id="endDate">
