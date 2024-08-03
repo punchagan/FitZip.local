@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FitZip.local - Your Local Fitbit Data Analyzer</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+        <script src="process-data.js" defer></script>
+    </head>
+    <body>
+        <h1>FitZip.local</h1>
+        <p>Your Local Fitbit Data Analyzer</p>
+        <div class="container">
+        </div>
+        <form id="dataForm">
+            <p>
+                <label>Fitbit Export zip file</label>
+                <input type="file" id="zipFile" accept=".zip">
+            </p>
+
+            <p>
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate">
+            </p>
+
+            <p>
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate">
+            </p>
+            <button type="submit">Process Data</button>
+        </form>
+        <div id="result"></div>
+    </body>
+</html>
