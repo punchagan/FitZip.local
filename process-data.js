@@ -58,10 +58,31 @@ const processData = async () => {
     return entryDate >= startDate && entryDate <= endDate;
   });
 
-  const groupedData = groupDataBy5Minutes(filteredData, startDate, endDate);
-  displayResults(groupedData, startDate, endDate);
-  enableDownloadButton(groupedData, startDate, endDate);
+  const groupedDataBy5Min = groupDataBy5Minutes(filteredData, startDate, endDate);
+  const groupedDataByDate = groupDataByDate(filteredData, startDate, endDate);
+  displayResults(groupedDataByDate, startDate, endDate);
+  enableDownloadButton(groupedDataBy5Min, startDate, endDate);
 }
+
+const groupDataByDate = (data, startDate, endDate) => {
+  const grouped = {};
+  const current = new Date(startDate);
+  current.setHours(0, 0, 0, 0);
+
+  while (current <= endDate) {
+    const key = current.toDateString();
+    grouped[key] = 0;
+    current.setDate(current.getDate() + 1);
+  }
+
+  data.forEach(entry => {
+    const date = new Date(entry.dateTime);
+    const key = date.toDateString();
+    grouped[key] += parseInt(entry.value);
+  });
+
+  return grouped;
+};
 
 const groupDataBy5Minutes = (data, startDate, endDate) => {
   const grouped = {};
@@ -122,6 +143,7 @@ const displayResults = (data, startDate, endDate) => {
   }
 
   const details = document.createElement('details');
+  details.setAttribute('open', "open")
   const summary = document.createElement('summary');
   const steps = `Processed data from ${formatDate(startDate)} to ${formatDate(endDate)}`;
   summary.textContent = steps;
