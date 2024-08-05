@@ -20,27 +20,44 @@ const processData = async () => {
   const zip = new JSZip();
   const contents = await zip.loadAsync(zipFile);
 
+  // Get all steps-*.json files and their dates
+  const stepFiles = Object.keys(contents.files)
+    .filter(filename => filename.match(/.*steps-.*\.json/))
+    .map(filename => {
+      const match = filename.match(/.*steps-(.*)\.json/);
+      return {
+        filename,
+        date: new Date(match[1])
+      };
+    })
+    .sort((a, b) => a.date - b.date);
+
+  // Find the index of the file with the closest date < startDate
+  let startIndexNext = stepFiles.findIndex(file => file.date >= startDate);
+  const startIndex = startIndexNext === 0 ? 0 : startIndexNext === -1 ? stepFiles.length - 1 : startIndexNext - 1;
+
+  // Find the index of the file with the date > endDate
+  const endIndex = stepFiles.findIndex(file => file.date > endDate);
+
+  // If endIndex is -1 (not found), use the last file
+  const filesToProcess = stepFiles.slice(startIndex, endIndex === -1 ? undefined : endIndex);
+
+  console.log(`Processing files from ${filesToProcess[0].filename} to ${filesToProcess[filesToProcess.length - 1].filename}`);
+
   let allStepData = [];
 
-  for (const [filename, file] of Object.entries(contents.files)) {
-    const match = filename.match(/.*steps-(.*)\.json/);
-    if (match) {
-      const date = new Date(match[1]);
-      if (date < startDate || date > endDate) {
-        console.log(`Skipping ${filename}`);
-        continue;
-      }
-      console.log(`Processing ${filename}`);
-      const content = await file.async('string');
-      const stepData = JSON.parse(content);
-      allStepData = allStepData.concat(stepData);
-    }
+  for (const fileInfo of filesToProcess) {
+    console.log(`Processing ${fileInfo.filename}`);
+    const content = await contents.files[fileInfo.filename].async('string');
+    const stepData = JSON.parse(content);
+    allStepData = allStepData.concat(stepData);
   }
 
   const filteredData = allStepData.filter(entry => {
     const entryDate = new Date(entry.dateTime);
     return entryDate >= startDate && entryDate <= endDate;
   });
+
   const groupedData = groupDataBy5Minutes(filteredData, startDate, endDate);
   displayResults(groupedData, startDate, endDate);
   enableDownloadButton(groupedData, startDate, endDate);
